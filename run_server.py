@@ -1,4 +1,4 @@
-from runpod import start, serverless
+from runpod.serverless import start, handler
 import subprocess
 import os
 import time
@@ -7,7 +7,7 @@ COMFY_PATH = "/workspace/ComfyUI"
 WORKFLOW_NAME = "face-generator-with-mask.json"
 OUTPUT_DIR = os.path.join(COMFY_PATH, "output", "AceFaceSwap")
 
-def run_comfyui(_):
+def run_comfyui(job):
     # Очистка output
     if os.path.exists(OUTPUT_DIR):
         for item in os.listdir(OUTPUT_DIR):
@@ -31,5 +31,5 @@ def run_comfyui(_):
 
     return {"error": "No output generated."}
 
-serverless.init(run_comfyui)
+handler.register(run_comfyui)
 start()

@@ -1,3 +1,4 @@
 fastapi
 uvicorn
-runpod
+runpod==1.0.0
+
