@@ -1,15 +1,16 @@
 from fastapi import FastAPI
-import uvicorn
+from runpod.serverless import start
+import time
 
 app = FastAPI()
 
 @app.get("/")
 def healthcheck():
-    return {"status": "ok", "message": "Hello from RunPod!"}
+    return {"status": "ok"}
 
 @app.post("/run")
-def run_workflow():
-    return {"status": "ready", "message": "This is where ComfyUI will run."}
+def run_job():
+    time.sleep(5)  # симуляция работы
+    return {"result": "Job complete."}
 
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+start(app)
