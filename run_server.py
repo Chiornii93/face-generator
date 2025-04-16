@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from runpod.serverless import start
 import time
 
 app = FastAPI()
@@ -10,7 +9,5 @@ def healthcheck():
 
 @app.post("/run")
 def run_job():
-    time.sleep(5)  # симуляция работы
+    time.sleep(5)  # симулируем работу
     return {"result": "Job complete."}
-
-start(app)
