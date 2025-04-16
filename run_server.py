@@ -1,42 +1,35 @@
-from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from runpod import start, serverless
 import subprocess
-import time
 import os
-
-app = FastAPI()
+import time
 
 COMFY_PATH = "/workspace/ComfyUI"
+WORKFLOW_NAME = "face-generator-with-mask.json"
 OUTPUT_DIR = os.path.join(COMFY_PATH, "output", "AceFaceSwap")
 
-@app.post("/generate")
-async def generate():
+def run_comfyui(_):
     # Очистка output
     if os.path.exists(OUTPUT_DIR):
-        for file in os.listdir(OUTPUT_DIR):
-            os.remove(os.path.join(OUTPUT_DIR, file))
+        for item in os.listdir(OUTPUT_DIR):
+            os.remove(os.path.join(OUTPUT_DIR, item))
     else:
         os.makedirs(OUTPUT_DIR)
 
-    # Запуск ComfyUI с заранее загруженным workflow
-    subprocess.run(
-        ["python3", "main.py", "--workflow", "face-generator-with-mask.json"],
-        cwd=COMFY_PATH
-    )
+    # Запуск workflow
+    subprocess.run([
+        "python3", "main.py", "--workflow", WORKFLOW_NAME
+    ], cwd=COMFY_PATH)
 
-    # Ждём результат
+    # Ожидание результата
     timeout = 30
-    start = time.time()
-    result_path = None
-
-    while time.time() - start < timeout:
+    start_time = time.time()
+    while time.time() - start_time < timeout:
         files = os.listdir(OUTPUT_DIR)
         if files:
-            result_path = os.path.join(OUTPUT_DIR, files[0])
-            break
+            return {"result": files[0]}  # Просто возвращаем имя файла
         time.sleep(1)
 
-    if result_path:
-        return FileResponse(result_path)
-    else:
-        return {"error": "No output generated"}
+    return {"error": "No output generated."}
+
+serverless.init(run_comfyui)
+start()
